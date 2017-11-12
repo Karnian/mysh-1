@@ -3,6 +3,7 @@
 #include <string.h>
 #include <assert.h>
 
+#include <unistd.h>
 #include "commands.h"
 #include "built_in.h"
 
@@ -50,7 +51,26 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
     } else if (strcmp(com->argv[0], "exit") == 0) {
       return 1;
     } else {
-      fprintf(stderr, "%s: command not found\n", com->argv[0]);
+	    int result = access(com->argv[0], 0);
+	    if(result == 0)
+	    {
+		    printf("Y\n");
+		    char **in = &(com->argv[1]);
+		    int pid = fork();
+		    if(pid == 0)
+		    {
+			    printf("argv[1] : %s\n", com->argv[1]);
+			    execv(com->argv[0], &(com->argv[1]));
+		    }
+		    else
+		    {
+//			    wait(pid);
+		    }
+	    }
+	    else
+	    {
+		    fprintf(stderr, "%s: command not found\n", com->argv[0]);
+	    }
       return -1;
     }
   }
