@@ -55,16 +55,30 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 	    if(result == 0)
 	    {
 		    printf("Y\n");
-		    char **in = &(com->argv[1]);
+//		    char **in = &(com->argv[1]);
 		    int pid = fork();
-		    if(pid == 0)
+		    int status;
+		    if(pid == 0 && strcmp(com->argv[(com->argc)-1], "&") != 0)
 		    {
 			    printf("argv[1] : %s\n", com->argv[1]);
 			    execv(com->argv[0], &(com->argv[1]));
 		    }
-		    else
+		    else if(pid == 0 && strcmp(com->argv[(com->argc)-1], "&") == 0)
 		    {
-//			    wait(pid);
+			    printf("%d\n", getpid());
+			    com->argv[(com->argc)-1] = NULL;
+//			    int bret = evaluate_command(n_commands, com);
+			    for(int i = 0; i < 20; i++)
+			    {
+				    printf("%d\n", i);
+				    sleep(1);
+			    }
+			    exit(7);
+//			    printf("%d DONE %s", getpid(), com->argv[0]);
+		    }
+		    else if(pid != 0 && strcmp(com->argv[1], "&") != 0)
+		    {
+			    wait(&status);
 		    }
 	    }
 	    else

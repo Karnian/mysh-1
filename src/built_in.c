@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <linux/limits.h>
+#include <sys/wait.h>
 
 #include "built_in.h"
 
@@ -37,6 +38,10 @@ int do_fg(int argc, char** argv) {
     return -1;
 
   // TODO: Fill this.
+  int status;
+  if(WEXITSTATUS(status) != 7)
+	  printf("RUNNING %s\n", argv[0]);
+  wait(&status);
 
   return 0;
 }
