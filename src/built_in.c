@@ -8,6 +8,7 @@
 #include <sys/wait.h>
 
 #include "built_in.h"
+#include "commands.h"
 
 int do_cd(int argc, char** argv) {
   if (!validate_cd_argv(argc, argv))
@@ -38,11 +39,12 @@ int do_fg(int argc, char** argv) {
     return -1;
 
   // TODO: Fill this.
-  int status;
-  if(WEXITSTATUS(status) != 7)
-	  printf("RUNNING %s\n", argv[0]);
-  wait(&status);
-
+  int status, pid;
+  pid = waitpid(-1, &status, WNOHANG);
+  if(pid != -1)
+	  printf("%d running\n", bpid);
+  else
+	  printf("%d DONE\n", bpid);
   return 0;
 }
 

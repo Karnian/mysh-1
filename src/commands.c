@@ -4,8 +4,13 @@
 #include <assert.h>
 
 #include <unistd.h>
+#include <sys/wait.h>
+#include <sys/types.h>
 #include "commands.h"
 #include "built_in.h"
+
+int bpid;
+char **in;
 
 static struct built_in_command built_in_commands[] = {
   { "cd", do_cd, validate_cd_argv },
@@ -54,32 +59,35 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 	    int result = access(com->argv[0], 0);
 	    if(result == 0)
 	    {
-		    printf("Y\n");
-//		    char **in = &(com->argv[1]);
-		    int pid = fork();
+//		    printf("Y\n");
+		    in = com->argv;
+		    pid_t pid = fork();
 		    int status;
 		    if(pid == 0 && strcmp(com->argv[(com->argc)-1], "&") != 0)
 		    {
-			    printf("argv[1] : %s\n", com->argv[1]);
-			    execv(com->argv[0], &(com->argv[1]));
+//			    printf("argv[1] : %s\n", com->argv[1]);
+			    execv(com->argv[0], com->argv);
 		    }
+		    //if & exist
 		    else if(pid == 0 && strcmp(com->argv[(com->argc)-1], "&") == 0)
 		    {
+			    bpid = getpid();
 			    printf("%d\n", getpid());
-			    com->argv[(com->argc)-1] = NULL;
-//			    int bret = evaluate_command(n_commands, com);
+			    in[(com->argc)-1] = NULL;
+			    
+//			    execv(in[0], in);
 			    for(int i = 0; i < 20; i++)
 			    {
 				    printf("%d\n", i);
 				    sleep(1);
 			    }
-			    exit(7);
-//			    printf("%d DONE %s", getpid(), com->argv[0]);
 		    }
 		    else if(pid != 0 && strcmp(com->argv[1], "&") != 0)
 		    {
 			    wait(&status);
 		    }
+		    else
+			    return -1;
 	    }
 	    else
 	    {
