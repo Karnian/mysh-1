@@ -63,24 +63,41 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 		    in = com->argv;
 		    pid_t pid = fork();
 		    int status;
+		    //not &, child
 		    if(pid == 0 && strcmp(com->argv[(com->argc)-1], "&") != 0)
 		    {
 //			    printf("argv[1] : %s\n", com->argv[1]);
 			    execv(com->argv[0], com->argv);
 		    }
-		    //if & exist
-		    else if(pid == 0 && strcmp(com->argv[(com->argc)-1], "&") == 0)
+		    //&, child
+		    else if(pid == 0 && strcmp(com->argv[(com->argc)-1],"&")==0)
 		    {
-			    bpid = getpid();
-			    printf("%d\n", getpid());
+			    bpid = fork();
 			    in[(com->argc)-1] = NULL;
 			    
-//			    execv(in[0], in);
+			    if(bpid == 0)
+			    {
+			//	    execv(in[0], in);
+
 			    for(int i = 0; i < 20; i++)
 			    {
 				    printf("%d\n", i);
 				    sleep(1);
 			    }
+			    exit(1);
+			    }
+			    else
+			    {
+				    printf("%d start\n", bpid);
+				    wait(&status);
+				    printf("%d DONE\n", bpid);
+				    exit(1);
+			    }
+		    }
+		    //&, parent
+		    else if(pid != 0 && strcmp(com->argv[(com->argc)-1],"&")==0)
+		    {
+			    return 0;
 		    }
 		    else if(pid != 0 && strcmp(com->argv[1], "&") != 0)
 		    {

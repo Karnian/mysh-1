@@ -40,9 +40,14 @@ int do_fg(int argc, char** argv) {
 
   // TODO: Fill this.
   int status, pid;
-  pid = waitpid(-1, &status, WNOHANG);
+  pid = waitpid(bpid, &status, WNOHANG);
+  printf("pid : %d\n", pid);
+  printf("bpid : %d\n", bpid);
   if(pid != -1)
+  {
 	  printf("%d running\n", bpid);
+	  wait(&status);
+  }
   else
 	  printf("%d DONE\n", bpid);
   return 0;
