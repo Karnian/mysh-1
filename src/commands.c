@@ -11,6 +11,7 @@
 
 int bpid;
 char **in;
+int len;
 
 char *path[6] = {
 	"/usr/local/bin/",
@@ -68,7 +69,6 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 	    if(result == 0)
 	    {
 //		    printf("Y\n");
-		    in = com->argv;
 		    pid_t pid = fork();
 		    int status;
 		    //not &, child
@@ -80,12 +80,10 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 		    //&, child
 		    else if(pid == 0 && strcmp(com->argv[(com->argc)-1],"&")==0)
 		    {
-			    int bbpid = fork();
-			    in[(com->argc)-1] = NULL;
+			    printf("chpid : %d\n", getpid());
+			    com->argv[(com->argc)-1] = NULL;
 			    
-			    if(bbpid == 0)
-			    {
-			//	    execv(in[0], in);
+//			    execv(com->argv[0], com->argv);
 
 			    for(int i = 0; i < 20; i++)
 			    {
@@ -93,23 +91,17 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 				    sleep(1);
 			    }
 			    exit(1);
-			    }
-			    else
-			    {
-				    printf("%d start\n", bbpid);
-				    bpid = bbpid;
-				    wait(&status);
-				    
-				    printf("%d DONE", bbpid);
-				    for(int i = 0; i < com->argc - 1; i++)
-					    printf(" %s", in[i]);
-				    printf("\n");
-				    exit(1);
-			    }
 		    }
 		    //&, parent
 		    else if(pid != 0 && strcmp(com->argv[(com->argc)-1],"&")==0)
 		    {
+			    printf("bp start\n");
+
+			    //need malloc
+			    strcpy(*in, *(com->argv));
+			    strcpy(in[(com->argc)-1], "\0");
+			    bpid = pid;
+			    len = com->argc - 1;
 			    return 0;
 		    }
 		    else if(pid != 0 && strcmp(com->argv[1], "&") != 0)

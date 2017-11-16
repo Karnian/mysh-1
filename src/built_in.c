@@ -45,11 +45,16 @@ int do_fg(int argc, char** argv) {
 //  printf("bpid : %d\n", bpid);
   if(pid != -1)
   {
-	  printf("%d running\n", bpid);
+	  printf("%d running", bpid);
+	  for(int i = 0; i < len; i++)
+		  printf(" %s", in[i]);
+	  printf("\n");
 	  wait(&status);
   }
-  else
-	  printf("%d DONE\n", bpid);
+  printf("%d DONE", bpid);
+  for(int i = 0; i < len; i++)
+	  printf(" %s", in[i]);
+  printf("\n");
   return 0;
 }
 
