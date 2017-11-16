@@ -9,9 +9,8 @@
 #include "commands.h"
 #include "built_in.h"
 
-int bpid;
-char **in;
-
+char *path[10] = {
+};
 static struct built_in_command built_in_commands[] = {
   { "cd", do_cd, validate_cd_argv },
   { "pwd", do_pwd, validate_pwd_argv },
@@ -72,10 +71,10 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 		    //&, child
 		    else if(pid == 0 && strcmp(com->argv[(com->argc)-1],"&")==0)
 		    {
-			    bpid = fork();
+			    int bbpid = fork();
 			    in[(com->argc)-1] = NULL;
 			    
-			    if(bpid == 0)
+			    if(bbpid == 0)
 			    {
 			//	    execv(in[0], in);
 
@@ -88,9 +87,10 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 			    }
 			    else
 			    {
-				    printf("%d start\n", bpid);
+				    printf("%d start\n", bbpid);
 				    wait(&status);
-				    printf("%d DONE\n", bpid);
+				    bpid = bbpid;
+				    printf("%d DONE\n", bbpid);
 				    exit(1);
 			    }
 		    }
