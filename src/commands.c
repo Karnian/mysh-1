@@ -80,12 +80,14 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 		    //&, child
 		    else if(pid == 0 && strcmp(com->argv[(com->argc)-1],"&")==0)
 		    {
-			    printf("chpid : %d\n", getpid());
+			    printf("%d\n", getpid());
+
 			    com->argv[(com->argc)-1] = NULL;
 			    
 //			    execv(com->argv[0], com->argv);
 
-			    for(int i = 0; i < 20; i++)
+			    //test function
+			    for(int i = 0; i < 5; i++)
 			    {
 				    printf("%d\n", i);
 				    sleep(1);
@@ -95,10 +97,13 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 		    //&, parent
 		    else if(pid != 0 && strcmp(com->argv[(com->argc)-1],"&")==0)
 		    {
-			    printf("bp start\n");
+//			    printf("bp start\n");
 
 			    //need malloc
 			    len = com->argc - 1;
+//			    printf("len = %d\n", len);
+//			    for(int i = 0; i < len; i++)
+//				    printf("%s\n", com->argv[i]);
 			    in = (char**)malloc(com->argc*sizeof(char*));
 			    for(int i=0;i<len;i++)
 			    {
@@ -106,13 +111,15 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 				    in[i] = (char*)malloc(sizeof(char)*(size+1));
 				    strcpy(in[i],com->argv[i]);
 			    }
-			    strcpy(in[(com->argc)-1], "\0");
+//			    printf("malloc done\n");
+//			    strcpy(in[len], "\0");
 			    bpid = pid;
 
 			    return 0;
 		    }
-		    else if(pid != 0 && strcmp(com->argv[1], "&") != 0)
+		    else if(pid != 0 && strcmp(com->argv[(com->argc)-1],"&")!=0)
 		    {
+//			    printf("p is wating\n");
 			    wait(&status);
 		    }
 		    else

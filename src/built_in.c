@@ -39,18 +39,19 @@ int do_fg(int argc, char** argv) {
     return -1;
 
   // TODO: Fill this.
-  int status, pid;
-  pid = waitpid(bpid, &status, WNOHANG);
+  int status;
+  int p = waitpid(bpid, &status, WNOHANG);
 //  printf("pid : %d\n", pid);
 //  printf("bpid : %d\n", bpid);
-  if(pid != -1)
+  if(p == 0)
   {
+//	  printf("p : %d\n", p);
 	  printf("%d running", bpid);
 	  for(int i = 0; i < len; i++)
 		  printf(" %s", in[i]);
 	  printf("\n");
-	  wait(&status);
   }
+  wait(&status);
   printf("%d DONE", bpid);
   for(int i = 0; i < len; i++)
 	  printf(" %s", in[i]);
