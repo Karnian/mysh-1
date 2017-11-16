@@ -127,7 +127,7 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 	    }
 	    else if(result != 0 && n_commands == 1)
 	    {
-		    for(int i = 0; i < 6; i++)
+		    for(int i = 0; i < 5; i++)
 		    {
 			    char od[100];
 			    strcat(od, path[i]);
@@ -157,6 +157,8 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 	    {
 
 	    }
+	    else
+		    fprintf(stderr, "%s: command not found\n", com->argv[0]);
       return -1;
     }
   }
