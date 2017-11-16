@@ -98,10 +98,17 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 			    printf("bp start\n");
 
 			    //need malloc
-			    strcpy(*in, *(com->argv));
+			    len = com->argc - 1;
+			    in = (char**)malloc(com->argc*sizeof(char*));
+			    for(int i=0;i<len;i++)
+			    {
+				    int size = strlen(com->argv[i]);
+				    in[i] = (char*)malloc(sizeof(char)*(size+1));
+				    strcpy(in[i],com->argv[i]);
+			    }
 			    strcpy(in[(com->argc)-1], "\0");
 			    bpid = pid;
-			    len = com->argc - 1;
+
 			    return 0;
 		    }
 		    else if(pid != 0 && strcmp(com->argv[1], "&") != 0)
