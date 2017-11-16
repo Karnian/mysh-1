@@ -30,6 +30,7 @@ int main()
     int ret = evaluate_command(n_commands, &commands);
 
     free_commands(n_commands, &commands);
+//    printf("n_com : %d\n", n_commands);
     n_commands = 0;
 
     if (ret == 1) {

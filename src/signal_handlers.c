@@ -6,7 +6,7 @@
 void catch_sigint(int signalNo)
 {
   // TODO: File this!
-	printf("ctrl^c\n");
+//	printf("ctrl^c\n");
 	signal(SIGINT, SIG_IGN);
 	return;
 }
@@ -14,7 +14,7 @@ void catch_sigint(int signalNo)
 void catch_sigtstp(int signalNo)
 {
   // TODO: File this!
-	printf("ctrl^z\n");
+//	printf("ctrl^z\n");
 	signal(SIGTSTP, SIG_IGN);
 	return;
 }

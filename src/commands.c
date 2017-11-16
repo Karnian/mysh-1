@@ -66,7 +66,7 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
       return 1;
     } else {
 	    int result = access(com->argv[0], 0);
-	    if(result == 0)
+	    if(result == 0 && n_commands == 1)
 	    {
 //		    printf("Y\n");
 		    pid_t pid = fork();
@@ -111,7 +111,7 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 		    else
 			    return -1;
 	    }
-	    else
+	    else if(result != 0 && n_commands == 1)
 	    {
 		    for(int i = 0; i < 6; i++)
 		    {
@@ -138,6 +138,10 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 				    memset(od, 0, 100);
 		    }
 		    fprintf(stderr, "%s: command not found\n", com->argv[0]);
+	    }
+	    else if(n_commands == 2)
+	    {
+
 	    }
       return -1;
     }
