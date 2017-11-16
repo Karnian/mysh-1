@@ -1,7 +1,7 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <stdio.h>
 
 #include <unistd.h>
 #include <sys/wait.h>
@@ -9,8 +9,17 @@
 #include "commands.h"
 #include "built_in.h"
 
-char *path[10] = {
+int bpid;
+char **in;
+
+char *path[6] = {
+	"/usr/local/bin/",
+	"/usr/bin/",
+	"/bin/",
+	"/usr/sbin/",
+	"/sbin/"
 };
+
 static struct built_in_command built_in_commands[] = {
   { "cd", do_cd, validate_cd_argv },
   { "pwd", do_pwd, validate_pwd_argv },
@@ -88,9 +97,13 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 			    else
 			    {
 				    printf("%d start\n", bbpid);
-				    wait(&status);
 				    bpid = bbpid;
-				    printf("%d DONE\n", bbpid);
+				    wait(&status);
+				    
+				    printf("%d DONE", bbpid);
+				    for(int i = 0; i < com->argc - 1; i++)
+					    printf(" %s", in[i]);
+				    printf("\n");
 				    exit(1);
 			    }
 		    }
@@ -108,6 +121,30 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 	    }
 	    else
 	    {
+		    for(int i = 0; i < 6; i++)
+		    {
+			    char od[100];
+			    strcat(od, path[i]);
+			    strcat(od, com->argv[0]);
+//			    printf("od : %s\n", od);
+			    if(access(od, 0) == 0)
+			    {
+				    strcpy(com->argv[0], od);
+				    int pid = fork();
+				    int status;
+				    if(pid == 0)
+				    {
+					    execv(com->argv[0], com->argv);
+				    }
+				    else
+				    {
+					    wait(&status);
+					    return 0;
+				    }
+			    }
+			    else
+				    memset(od, 0, 100);
+		    }
 		    fprintf(stderr, "%s: command not found\n", com->argv[0]);
 	    }
       return -1;
