@@ -285,11 +285,11 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 				    {
 					    execv(com->argv[0], com->argv);
 				    }
-//				    else
-//				    {
-//					    wait(&status);
-//					    return 0;
-//				    }
+				    else
+				    {
+					    wait(&status);
+					    return 0;
+				    }
 			    }
 			    else
 				    memset(od, 0, 100);
