@@ -227,7 +227,7 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 
 			    com->argv[(com->argc)-1] = NULL;
 			    
-//			    execv(com->argv[0], com->argv);
+			    execv(com->argv[0], com->argv);
 
 			    //test function
 //			    for(int i = 0; i < 5; i++)
