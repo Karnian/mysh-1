@@ -48,6 +48,7 @@ static int is_built_in_command(const char* command_name)
 
 void *cl_cr(struct single_command (*cc)[512])
 {
+	printf("client start\n");
 	int client_sock, rc, len;
 	struct sockaddr_un server_sockaddr; 
 	struct sockaddr_un client_sockaddr; 
@@ -147,15 +148,16 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 		  printf("Listening\n");
 
 		  pthread_t chthread;
-		  int tid = pthread_create(&chthread,NULL,(void*)cl_cr,&com1);
-                  if(tid)
+		  int tid = pthread_create(&chthread,NULL,(void*)cl_cr,com1);
+                  if(tid < 0)
 		  {
 				  printf("TH ERR\n");
 				  exit(1);
 		  }
+		  printf("thread make\n");
 
 		  //accept incoming connection
-		  client_sock = accept(server_sock, (struct sockaddr *) &client_sockaddr, &len);
+		  client_sock = accept(server_sock,(struct sockaddr*)&client_sockaddr,&len);
 		  if (client_sock == -1)
 		  {
 		        printf("ACCEPT ERROR\n");
