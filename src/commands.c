@@ -147,6 +147,14 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 		  }
 		  printf("Listening\n");
 
+		  rc = rc = listen(server_sock, backlog);
+		  if (rc == -1)
+		  {
+			  printf("LSTERR\n");
+			  close(server_sock);
+			  exit(1);
+		  }
+
 		  pthread_t chthread;
 		  int tid = pthread_create(&chthread,NULL,(void*)cl_cr,com1);
                   if(tid < 0)
