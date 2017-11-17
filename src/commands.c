@@ -6,9 +6,15 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <pthread.h>
 #include "commands.h"
 #include "built_in.h"
 
+#define SOCK_PATH "tpf_unix_sock.server"
+#define SERVER_PATH "tpf_unix_sock.server"
+#define CLIENT_PATH "tpf_unix_sock.client"
 int bpid;
 char **in;
 int len;
@@ -40,12 +46,139 @@ static int is_built_in_command(const char* command_name)
   return -1; // Not found
 }
 
+void *cl_cr(struct single_command (*cc)[512])
+{
+	int client_sock, rc, len;
+	struct sockaddr_un server_sockaddr; 
+	struct sockaddr_un client_sockaddr; 
+
+	client_sock = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (client_sock == -1) 
+	{
+		printf("SOCKET ERROR");
+		exit(1);
+	}
+
+	client_sockaddr.sun_family = AF_UNIX;
+	strcpy(client_sockaddr.sun_path, CLIENT_PATH);
+	len = sizeof(client_sockaddr);
+
+	unlink(CLIENT_PATH);
+	rc = bind(client_sock, (struct sockaddr *) &client_sockaddr, len);
+	if (rc == -1)
+	{
+		printf("BIND ERROR");
+		close(client_sock);
+		exit(1);
+	}
+
+	server_sockaddr.sun_family = AF_UNIX;
+	strcpy(server_sockaddr.sun_path, SERVER_PATH);
+	rc = connect(client_sock, (struct sockaddr *) &server_sockaddr, len);
+	if(rc == -1)
+	{
+		printf("CONNECT ERROR");
+		close(client_sock);
+		exit(1);
+	}
+
+	int output = dup(STDOUT_FILENO);
+	dup2(client_sock, STDOUT_FILENO);
+	close(client_sock);
+
+	evaluate_command(1, cc);
+
+	close(STDOUT_FILENO);
+	dup2(output, STDOUT_FILENO);
+	close(output);
+
+	close(client_sock);
+
+	pthread_exit(NULL);
+}
 /*
  * Description: Currently this function only handles single built_in commands. You should modify this structure to launch process and offer pipeline functionality.
  */
 int evaluate_command(int n_commands, struct single_command (*commands)[512])
 {
   if (n_commands > 0) {
+	  if(n_commands == 2)
+	  {
+		  struct single_command *com1 = (*commands);
+		  struct single_command *com2 = &((*commands)[1]);
+		  struct sockaddr_un server_sockaddr, client_sockaddr;
+		  int server_sock, client_sock, len, rc;
+		  int bytes_rec = 0;
+
+		  struct single_command secom[512];
+		  memcpy(secom, com2, sizeof(struct single_command));
+
+		  char buff[512];
+		  int backlog = 10;
+		  void *status;
+
+		  memset(&server_sockaddr, 0, sizeof(struct sockaddr_un));
+		  memset(&client_sockaddr, 0, sizeof(struct sockaddr_un));
+		  memset(buff, 0, 512);
+
+		  //server creation
+		  server_sock = socket(AF_UNIX, SOCK_STREAM, 0);
+		  if(server_sock == -1)
+		  {
+			  printf("SERVER CREATION ERR\n");
+			  exit(1);
+		  }
+
+		  //setting
+		  server_sockaddr.sun_family = AF_UNIX;
+		  strcpy(server_sockaddr.sun_path, SOCK_PATH);
+		  len = sizeof(server_sockaddr);
+
+		  unlink(SOCK_PATH);
+
+		  //listening
+		  rc = bind(server_sock,(struct sockaddr*)&server_sockaddr,len);
+		  if(rc == -1)
+		  {
+			  printf("L ERR\n");
+			  close(server_sock);
+			  exit(1);
+		  }
+		  printf("Listening\n");
+
+		  pthread_t chthread;
+		  int tid = pthread_create(&chthread,NULL,(void*)cl_cr,&com1);
+                  if(tid)
+		  {
+				  printf("TH ERR\n");
+				  exit(1);
+		  }
+
+		  //accept incoming connection
+		  client_sock = accept(server_sock, (struct sockaddr *) &client_sockaddr, &len);
+		  if (client_sock == -1)
+		  {
+		        printf("ACCEPT ERROR\n");
+			close(server_sock);
+			close(client_sock);
+			exit(1);
+		  }
+
+		  //etc
+		  pthread_join(chthread, &status);
+
+		  int input = dup(STDIN_FILENO);
+		  dup2(client_sock, STDIN_FILENO);
+		  close(client_sock);
+
+		  evaluate_command(1, &secom);
+
+		  close(STDIN_FILENO);
+		  dup2(input, STDIN_FILENO);
+		  close(input);
+		  close(server_sock);
+		  return 0;
+	  }
     struct single_command* com = (*commands);
 
     assert(com->argc != 0);
