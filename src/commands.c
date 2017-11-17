@@ -48,7 +48,7 @@ static int is_built_in_command(const char* command_name)
 
 void *cl_cr(struct single_command (*cc)[512])
 {
-	printf("client start\n");
+//	printf("client start\n");
 	int client_sock, rc, len;
 	struct sockaddr_un server_sockaddr; 
 	struct sockaddr_un client_sockaddr; 
@@ -145,7 +145,7 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 			  close(server_sock);
 			  exit(1);
 		  }
-		  printf("Listening\n");
+//		  printf("Listening\n");
 
 		  rc = rc = listen(server_sock, backlog);
 		  if (rc == -1)
@@ -162,7 +162,7 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 				  printf("TH ERR\n");
 				  exit(1);
 		  }
-		  printf("thread make\n");
+//		  printf("thread make\n");
 
 		  //accept incoming connection
 		  client_sock = accept(server_sock,(struct sockaddr*)&client_sockaddr,&len);
@@ -230,12 +230,12 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 //			    execv(com->argv[0], com->argv);
 
 			    //test function
-			    for(int i = 0; i < 5; i++)
-			    {
-				    printf("%d\n", i);
-				    sleep(1);
-			    }
-			    exit(1);
+//			    for(int i = 0; i < 5; i++)
+//			    {
+//				    printf("%d\n", i);
+//				    sleep(1);
+//			    }
+//			    exit(1);
 		    }
 		    //&, parent
 		    else if(pid != 0 && strcmp(com->argv[(com->argc)-1],"&")==0)
